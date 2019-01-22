@@ -29,8 +29,36 @@ pipeline {
         }
       }
     }
+    stage('JFrogPush') {
+      steps {
+        echo 'Starting JFrogPush'
+        script {
+          def server = Artifactory.server "artifactory"
+          def buildInfo = Artifactory.newBuildInfo()
+          def rtMaven = Artifactory.newMavenBuild()
+
+          rtMaven.tool = 'maven'
+          rtMaven.deployer server: server, releaseRepo: 'libs-release-local', snapshotRepo: 'libs-snapshot-local'
+
+          buildInfo = rtMaven.run pom: 'pom.xml', goals: "clean install -Dlicense.skip=true"
+          buildInfo.env.capture = true
+          buildInfo.name = 'jpetstore-6'
+          server.publishBuildInfo buildInfo
+        }
+
+        echo 'JFrogPush Finished'
+      }
+    }
+    stage('Deploy Prompt') {
+      steps {
+        input 'Deploy to production?'
+      }
+    }
   }
   tools {
     maven 'maven'
+  }
+  environment {
+    TESTER = 'Nick'
   }
 }
