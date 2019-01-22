@@ -54,6 +54,12 @@ pipeline {
         input 'Deploy to production?'
       }
     }
+    stage('Deployment') {
+      steps {
+        echo 'Starting Deployment'
+        echo 'Deployment Complete'
+      }
+    }
   }
   tools {
     maven 'maven'
